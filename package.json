@@ -7,6 +7,9 @@
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
     "@testing-library/user-event": "^13.5.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^6.0.0",
@@ -14,11 +17,16 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "concurrently \"react-scripts start\" \"cd express && node index.js\"",
+    "client": "react-scripts start",
+    "server": "cd express && node index.js",
+    "server-dev": "cd express && npx nodemon index.js",
     "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "install-server": "cd express && npm install",
+    "install-client": "npm install",
+    "install-all": "npm install && npm run install-server"
   },
+    
   "eslintConfig": {
     "extends": [
       "react-app",
@@ -36,5 +44,6 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "proxy": "http://localhost:5001"
 }
