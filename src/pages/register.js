@@ -7,6 +7,7 @@ function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const [error, setError] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,6 +28,7 @@ function Register() {
         throw new Error("Error registering user");
       }
 
+
       const data = await response.json();
       console.log("User registered successfully:", data);
       setTimeout(() => {
@@ -35,7 +37,7 @@ function Register() {
 
     } catch (error) {
       console.error("Error adding user:", error);
-      // Optionally, display an error message to the user here
+      setError(error.message);
     }
   };
 
@@ -44,6 +46,7 @@ function Register() {
       <a href='/' className="app-title">Cavemanomics</a>
       <header className="header">
         <h1>Register</h1>
+        {error && <div className="error-message">{error}</div>}
         <form className="input-container" onSubmit={handleSubmit}>
           <input 
             type="text" 
