@@ -1,4 +1,10 @@
 import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+<<<<<<< Updated upstream
+=======
+import Login from './pages/login'
+import Register from './pages/register'
+import Main from './pages/main'
+>>>>>>> Stashed changes
 import './App.css';
 
 function App() {
@@ -8,6 +14,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/main" element={<Main />} />
       </Routes>
     </Router>
   );
@@ -28,6 +35,9 @@ function Home() {
           </Link>
           <Link to="/login">
             <button className="bttn">Login</button>
+          </Link>
+          <Link to="/main">
+            <button className="bttn">Main</button>
           </Link>
         </div>
       </header>
