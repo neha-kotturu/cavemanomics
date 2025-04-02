@@ -6,6 +6,7 @@ const path = require("path");
 const cors = require("cors");
 const dotenvResult = require('dotenv').config({ path: path.join(__dirname, '.env') });
 console.log("dotenv loaded:", dotenvResult);
+console.log(process.env);
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -22,7 +23,7 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
   pool_mode: process.env.DB_POOLMODE,
-  ssl: { rejectUnauthorized: false } // Add this for Supabase SSL support
+  ssl: false // Add this for Supabase SSL support
 });
 
 // 🛡️ Secure POST Request: Add User
