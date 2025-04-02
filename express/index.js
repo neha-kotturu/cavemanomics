@@ -1,11 +1,11 @@
 const express = require("express");
-const { Pool } = require("pg");
 const bcrypt = require("bcrypt");
 const { body, validationResult } = require("express-validator");
 const escape = require("pg-escape");
 const path = require("path");
 const cors = require("cors");
-require("dotenv").config();
+const dotenvResult = require('dotenv').config({ path: path.join(__dirname, '.env') });
+console.log("dotenv loaded:", dotenvResult);
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -13,12 +13,16 @@ const PORT = process.env.PORT || 5001;
 app.use(express.json());
 app.use(cors());
 
+
+const { Pool } = require("pg");
 const pool = new Pool({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
   database: process.env.DB_NAME,
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
+  pool_mode: process.env.DB_POOLMODE,
+  ssl: { rejectUnauthorized: false } // Add this for Supabase SSL support
 });
 
 // 🛡️ Secure POST Request: Add User
@@ -32,6 +36,9 @@ app.post(
   async (req, res) => {
     console.log("handling submit")
     const errors = validationResult(req);
+    let { username, password, email } = req.body;
+    username = escape.literal(username);
+
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
@@ -41,9 +48,6 @@ app.post(
     if (existingUser.rows.length > 0) {
       return res.status(409).json({ error: "Username or email already in use" });
     }
-
-    let { username, password, email } = req.body;
-    username = escape.literal(username);
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
