@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import '../css/login.css'
+import { useNavigate } from "react-router-dom";
 
 
 function Login() {
@@ -27,10 +28,12 @@ function Login() {
       }
 
       const data = await response.json();
-      console.log("User successfully logged in:", data);
+
+      localStorage.setItem("token", data)
+      console.log("User successfully logged in");
       setTimeout(() => {
         navigate("/");
-      }, 2000);
+      }, 1000);
 
     } catch (error) {
       console.error("Error adding user:", error);

@@ -4,9 +4,8 @@ const { body, validationResult } = require("express-validator");
 const escape = require("pg-escape");
 const path = require("path");
 const cors = require("cors");
+// const jwt = require('jsonwebtoken');
 const dotenvResult = require('dotenv').config({ path: path.join(__dirname, '.env') });
-console.log("dotenv loaded:", dotenvResult);
-console.log(process.env);
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -26,7 +25,49 @@ const pool = new Pool({
   ssl: false // Add this for Supabase SSL support
 });
 
-// 🛡️ Secure POST Request: Add User
+
+// app.post(
+//   "/api/login",
+//   [
+//     body("username").trim().isAlphanumeric().isLength({ min: 3, max: 20 }),
+//     body("password").isLength({ min: 6, max: 100 }),
+//   ],
+//   async (req, res) => {
+//     try {
+//       const errors = validationResult(req);
+//       let { username, password } = req.body;
+//       console.log(username, password)
+
+//       if (!errors.isEmpty()) {
+//         return res.status(400).json({ errors: errors.array() });
+//       }
+
+//       const checkQuery = "SELECT * FROM users WHERE username = $1";
+//       const existingUser = await pool.query(checkQuery, [username]);
+//       if (existingUser.rows.length == 0) {
+//         return res.status(409).json({ error: "No user by that name exists" });
+//       }
+//       existingUser = existingUser[0]
+
+//       const passwordMatch = await bcrypt.compare(password, existingUser.password);
+//       if (!passwordMatch) {
+//         return res.status(401).json("Incorrect password")
+//       }
+
+//       const token = jwt.sign(
+//         { userId: existingUser.id, username: existingUser.username },
+//         process.env.JWT_SECRET, // a secret key stored in your env
+//         { expiresIn: '2h' }
+//       );
+  
+//       return res.json({ token });
+//     }
+//     catch(err) {
+//       return res.status(err, "Internal Server Error");
+//     }
+//   }
+// );
+
 app.post(
   "/api/register",
   [
@@ -105,3 +146,5 @@ app.get('*', (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
+
+
