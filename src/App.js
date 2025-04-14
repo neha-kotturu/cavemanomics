@@ -42,7 +42,6 @@ function Home() {
   );
 }
 
-<<<<<<< HEAD
 function Register() {
   return (
     <div className="App">
@@ -103,6 +102,5 @@ function Chat() {
   );
 }
 
-=======
->>>>>>> 088e4fa00a3126a4cdb064be7f75fbd832654748
+
 export default App;
