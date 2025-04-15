@@ -23,13 +23,15 @@ function Login() {
         body: JSON.stringify(userData)
       });
 
+      console.log("response:", response)
+
       if (!response.ok) {
-        throw new Error("Error registering user");
+        throw new Error(response);
       }
 
       const data = await response.json();
 
-      localStorage.setItem("token", data)
+      localStorage.setItem('token', JSON.stringify(data));
       console.log("User successfully logged in");
       setTimeout(() => {
         navigate("/");
