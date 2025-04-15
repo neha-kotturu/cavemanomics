@@ -35,7 +35,7 @@ const pool = new Pool({
 app.post(
   "/api/login",
   [
-    body("username").trim().isAlphanumeric().isLength({ min: 3, max: 20 }),
+    body("username").isAlphanumeric().isLength({ min: 3, max: 20 }),
     body("password").isLength({ min: 6, max: 100 }),
   ],
   async (req, res) => {
