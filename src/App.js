@@ -1,4 +1,7 @@
 import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import Login from './pages/login'
+import Register from './pages/register'
+import Test from './pages/test'
 import './App.css';
 
 function App() {
@@ -8,6 +11,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/test" element={<Test />} />
       </Routes>
     </Router>
   );
@@ -30,39 +34,6 @@ function Home() {
             <button className="bttn">Login</button>
           </Link>
         </div>
-      </header>
-    </div>
-  );
-}
-
-function Register() {
-  return (
-    <div className="App">
-      <a href='/' className="app-title">Cavemanomics</a>
-      <header className="header">
-        <h1>Register</h1>
-        <form className="input-container">
-          <input type="text" placeholder="Username" className="input-field"/>
-          <input type="email" placeholder="Email" className="input-field"/>
-          <input type="password" placeholder="Password" className="input-field"/>
-          <button className="bttn">Register</button>
-        </form>
-      </header>
-    </div>
-  );
-}
-
-function Login() {
-  return (
-    <div className="App">
-      <a href='/' className="app-title">Cavemanomics</a>
-      <header className="header">
-        <h1>Login</h1>
-        <form className="input-container">
-          <input type="email" placeholder="Email" className="input-field"/>
-          <input type="password" placeholder="Password" className="input-field"/>
-          <button className="bttn">Login</button>
-        </form>
       </header>
     </div>
   );
