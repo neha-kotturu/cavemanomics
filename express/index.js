@@ -106,6 +106,43 @@ app.post(
   }
 );
 
+app.post(
+    "/api/postText",
+    async (req, res) => {
+        const errors = validationResult(req);
+        let {matchedId, text, index, username} = req.body;
+
+        if (!errors.isEmpty()) {
+          return res.status(400).json({ errors: errors.array() });
+        }
+
+        try {
+          const result = await pool.query(
+            "INSERT INTO chatlogs (matched_id, text, index, username) VALUES ($1, $2, $3, $4) RETURNING *",
+            [matchedId, text, index, username]
+          );
+          res.json({ message: "Text posted successfully." });
+        } catch (err) {
+          console.error("Database error:", err);
+          res.status(500).json({ error: "Database error" });
+        }
+    }
+)
+
+app.post(
+    "/api/getIndices",
+    async (req, res) => {
+        try {
+            const result = await pool.query("SELECT index FROM chatlogs WHERE matched_id = $1",
+                [req.body.matchedId]);
+            res.json(result.rows);
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: "Database error" });
+        }
+    }
+)
+
 // Test database connection
 pool.query("SELECT NOW()", (err, res) => {
   if (err) {
