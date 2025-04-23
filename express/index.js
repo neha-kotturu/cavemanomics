@@ -31,6 +31,24 @@ const pool = new Pool({
   ssl: false // Add this for Supabase SSL support
 });
 
+app.post(
+  "/api/validate",
+  [
+    body("token"),
+  ],
+  async (req, res) => {
+    const { token } = req.body;
+    try {
+      console.log("Token:", token)
+      // throws if invalid or expired
+      const payload = jwt.verify(token, process.env.JWT_SECRET);
+      // now payload.username & payload.userId are guaranteed
+      res.status(200).json({ ok: true, username: payload.username, userid: payload.userId });
+    } catch (err) {
+      res.status(401).json({ error: 'Invalid token' });
+    }
+});
+
 
 app.post(
   "/api/login",
