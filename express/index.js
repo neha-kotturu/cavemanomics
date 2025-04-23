@@ -42,6 +42,7 @@ app.post(
       console.log("Token:", token)
       // throws if invalid or expired
       const payload = jwt.verify(token, process.env.JWT_SECRET);
+      if (!payload) throw new Error("Invalid token")
       // now payload.username & payload.userId are guaranteed
       res.status(200).json({ ok: true, username: payload.username, userid: payload.userId });
     } catch (err) {
