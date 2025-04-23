@@ -1,26 +1,35 @@
 import React, { useState, useEffect, useRef } from 'react';
+import Auth from './auth';
 import '../css/main.css';
-
-//import images
-import headphones from '../images/headphones.jpg';
-import pens from '../images/pens.jpg';
-import sweater from '../images/sweater.jpg';
-
-// Manual testing -- hardcode items
-const items = [
-  { id: 1, name: "Headphones", desc: "Fire beats", image: headphones },
-  { id: 2, name: "Pens", desc: "Nice pens", image: pens },
-  { id: 3, name: "Sweater", desc: "Warm sweater", image: sweater },
-];
 
 const App = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [direction, setDirection] = useState(null);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
   const cardRef = useRef(null);
 
-  // Like item
+  // fetch the items from the api
+  useEffect(() => {
+    const fetchItems = async () => {
+      try {
+        const response = await fetch('/api/items');
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        setItems(data);
+      } catch (error) {
+        console.error('Error fetching items:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchItems();
+  }, []);
+
+  // like items
   const handleLike = () => {
     if (currentIndex < items.length - 1) {
       setDirection('right');
@@ -29,7 +38,7 @@ const App = () => {
         setDirection(null);
       }, 300);
     } else {
-      // Handle the last item -- no more items left
+      // handle last item -- no more items left
       setDirection('right');
       setTimeout(() => {
         setCurrentIndex(currentIndex + 1);
@@ -38,7 +47,7 @@ const App = () => {
     }
   };
 
-  // Dislike item
+  // dislike item
   const handleDislike = () => {
     if (currentIndex < items.length - 1) {
       setDirection('left');
@@ -47,7 +56,7 @@ const App = () => {
         setDirection(null);
       }, 300);
     } else {
-      // Handle the last item -- no more items left
+      // handle last item -- no more items left
       setDirection('left');
       setTimeout(() => {
         setCurrentIndex(currentIndex + 1);
@@ -60,26 +69,53 @@ const App = () => {
     setCurrentIndex(0);
   };
 
-  // Profile menu
+  // profile menu 
   const toggleProfileMenu = () => {
     setShowProfileMenu(!showProfileMenu);
     if (showNotifications) setShowNotifications(false);
   };
 
-  // Notifications menu
+  // notifications menu
   const toggleNotifications = () => {
     setShowNotifications(!showNotifications);
     if (showProfileMenu) setShowProfileMenu(false);
   };
 
+  if (loading) {
+    return <div className="app">Loading items...</div>;
+  }
+
+  if (items.length === 0) {
+    return <div className="app">No items found</div>;
+  }
+
   const currentItem = items[currentIndex];
+
+  const renderItemImage = () => {
+    try {
+      const itemImage = currentItem.item_url;
+      
+      if (!itemImage) {
+        return <div className="no-image">No Image Available</div>;
+      }
+  
+      if (typeof itemImage === 'string') {
+        return <img src={itemImage} alt={currentItem.item_name} className="item-image" />;
+      }
+  
+      return <div className="no-image">No Image Available</div>;
+    } catch (error) {
+      console.error('Error rendering image:', error);
+      return <div className="no-image">Error loading image</div>;
+    }
+  };
 
   return (
     <div className="app">
       <nav className="navbar">
         <div className="nav-left"></div>
         <div className="nav-center">
-          <h1 className="logo">Cavemanomics</h1>
+          <h1 className="logo">Cavemanomics!</h1>
         </div>
         <div className="nav-right">
           <div className="nav-icon-container">
@@ -116,11 +152,14 @@ const App = () => {
               className={`card ${direction ? `swipe-${direction}` : ''}`}
             >
               <div className="card-image">
-                <img src={currentItem.image} alt={currentItem.name} />
+                {renderItemImage()}
               </div>
               <div className="card-info">
-                <h2>{currentItem.name}</h2>
-                <p className="item-desc">{currentItem.desc}</p>
+                <h2>{currentItem.item_name}</h2>
+                <p className="item-desc">{currentItem.item_description}</p>
+                {currentItem.poster_name && (
+                  <p className="poster-info">Posted by: {currentItem.poster_name}</p>
+                )}
               </div>
             </div>
           ) : (
@@ -148,4 +187,12 @@ const App = () => {
   );
 };
 
-export default App;
+function AuthMain() {
+  return (  
+    <Auth>
+      <App />
+    </Auth>
+  );
+}
+
+export default AuthMain;
