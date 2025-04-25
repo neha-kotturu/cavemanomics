@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Auth from './auth';
 import '../css/main.css';
 
 const App = () => {
+  const navigate = useNavigate();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -15,7 +17,7 @@ const App = () => {
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const response = await fetch('/api/items');
+        const response = await fetch('http://localhost:5001/api/items');
         if (!response.ok) throw new Error('Network response was not ok');
         const data = await response.json();
         setItems(data);
@@ -28,6 +30,13 @@ const App = () => {
 
     fetchItems();
   }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/');
+    setShowProfileMenu(false);
+  };
 
   // like items
   const handleLike = () => {
@@ -137,7 +146,7 @@ const App = () => {
             </div>
             {showProfileMenu && (
               <div className="dropdown-menu profile-menu">
-                <div className="menu-item">Logout</div>
+                <div className="menu-item" onClick={handleLogout}>Logout</div>
               </div>
             )}
           </div>
