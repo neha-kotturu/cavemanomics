@@ -7,6 +7,22 @@ const cors = require("cors");
 const jwt = require('jsonwebtoken');
 const dotenvResult = require('dotenv').config({ path: path.join(__dirname, '.env') });
 
+const multer = require("multer");
+
+// Set up Multer to store files in /uploads directory
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/");
+  },
+  filename: (req, file, cb) => {
+    const uniqueName = Date.now() + "-" + file.originalname;
+    cb(null, uniqueName);
+  },
+});
+
+const upload = multer({ storage });
+
+
 const app = express();
 const PORT = process.env.PORT || 5001;
 
@@ -127,6 +143,27 @@ app.get("/api/users", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Database error" });
+  }
+});
+
+app.post("/api/upload", upload.single("image"), async (req, res) => {
+  const { item_name, description, poster_id } = req.body;
+  const imagePath = req.file ? req.file.filename : null;
+
+  if (!item_name || !description || !poster_id || !imagePath) {
+    return res.status(400).json({ message: "Missing required fields" });
+  }
+
+  try {
+    const result = await pool.query(
+      `INSERT INTO trade_items (item_name, description, image_path, poster_id)
+       VALUES ($1, $2, $3, $4) RETURNING *`,
+      [item_name, description, imagePath, poster_id]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error("Upload error:", err);
+    res.status(500).json({ message: "Database error" });
   }
 });
 
