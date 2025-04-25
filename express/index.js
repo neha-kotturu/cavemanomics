@@ -153,22 +153,8 @@ app.get("/api/users", async (req, res) => {
 // =============================================
 // ITEM LISTINGS
 
-// Add the authenticateToken middleware (from old code)
-const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
 
-  if (!token) return res.sendStatus(401);
-
-  jwt.verify(token, process.env.JWT_SECRET, (err, userId) => {
-    if (err) return res.sendStatus(403);
-    req.userId = userId;
-    next();
-  });
-};
-
-
-// get all items (updated version)
+// get all items
 app.get("/api/items", async (req, res) => {
   try {
     const { rows } = await pool.query(`
