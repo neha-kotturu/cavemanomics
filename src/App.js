@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import Login from './pages/login'
 import Register from './pages/register'
 import Test from './pages/test'
+import Main from './pages/main'
 import './App.css';
 import auth, { pullData } from './pages/auth'
 
@@ -14,6 +15,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/test" element={<Test />} />
+        <Route path="/main" element={<Main />} />
       </Routes>
     </Router>
   );

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 export function pullData(token) {
-  if (!token) throw new Error("No token")
+  if (!token) return null
   const [, payloadB64] = token.split('.')
   return JSON.parse(atob(payloadB64))
 }
