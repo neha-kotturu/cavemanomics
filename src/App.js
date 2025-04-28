@@ -37,7 +37,7 @@ function Home() {
         </p>
         <div className="userId">
         {userID ? (
-        <p>Welcome! Your token is: {userID}</p>
+        <p>Welcome! Your userID is: {userID}</p>
       ) : (
         <p>No token found. Please log in.</p>
       )}
