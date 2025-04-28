@@ -150,6 +150,26 @@ app.get("/api/users", async (req, res) => {
 });
 
 
+// =============================================
+// ITEM LISTINGS
+
+
+// get all items
+app.get("/api/items", async (req, res) => {
+  try {
+    const { rows } = await pool.query(`
+      SELECT items.*, users.username as poster_name 
+      FROM items 
+      JOIN users ON items.poster_id = users.id
+      ORDER BY items.id DESC
+    `);
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Database error" });
+  }
+});
+
 // Serve React frontend in production
 app.use(express.static(path.join(__dirname, '../build')));
 
@@ -170,5 +190,3 @@ app.get('*', (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
-
-

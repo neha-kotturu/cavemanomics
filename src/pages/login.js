@@ -34,7 +34,7 @@ function Login() {
       localStorage.setItem('token', JSON.stringify(data));
       console.log("User successfully logged in");
       setTimeout(() => {
-        navigate("/");
+        navigate("/main");
       }, 1000);
 
     } catch (error) {
