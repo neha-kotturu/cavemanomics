@@ -4,7 +4,7 @@ const { body, validationResult } = require("express-validator");
 const escape = require("pg-escape");
 const path = require("path");
 const cors = require("cors");
-// const jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
 const dotenvResult = require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const app = express();
@@ -12,6 +12,12 @@ const PORT = process.env.PORT || 5001;
 
 app.use(express.json());
 app.use(cors());
+
+app.use((req, res, next) => {
+  console.log("Incoming:", req.method, req.url, req.headers['content-type'], req.body);
+  next();
+});
+
 
 
 const { Pool } = require("pg");
@@ -25,53 +31,71 @@ const pool = new Pool({
   ssl: false // Add this for Supabase SSL support
 });
 
+app.post(
+  "/api/validate",
+  [
+    body("token"),
+  ],
+  async (req, res) => {
+    const { token } = req.body;
+    try {
+      console.log("Token:", token)
+      // throws if invalid or expired
+      const payload = jwt.verify(token, process.env.JWT_SECRET);
+      if (!payload) throw new Error("Invalid token")
+      // now payload.username & payload.userId are guaranteed
+      res.status(200).json({ ok: true, username: payload.username, userid: payload.userId });
+    } catch (err) {
+      res.status(401).json({ error: 'Invalid token' });
+    }
+});
 
-// app.post(
-//   "/api/login",
-//   [
-//     body("username").trim().isAlphanumeric().isLength({ min: 3, max: 20 }),
-//     body("password").isLength({ min: 6, max: 100 }),
-//   ],
-//   async (req, res) => {
-//     try {
-//       const errors = validationResult(req);
-//       let { username, password } = req.body;
-//       console.log(username, password)
 
-//       if (!errors.isEmpty()) {
-//         return res.status(400).json({ errors: errors.array() });
-//       }
+app.post(
+  "/api/login",
+  [
+    body("username").isAlphanumeric().isLength({ min: 3, max: 20 }),
+    body("password").isLength({ min: 6, max: 100 }),
+  ],
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      let { username, password } = req.body;
+      console.log(username, password)
 
-//       const checkQuery = "SELECT * FROM users WHERE username = $1";
-//       const existingUser = await pool.query(checkQuery, [username]);
-//       if (existingUser.rows.length == 0) {
-//         return res.status(409).json({ error: "No user by that name exists" });
-//       }
-//       existingUser = existingUser[0]
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
 
-//       const passwordMatch = await bcrypt.compare(password, existingUser.password);
-//       if (!passwordMatch) {
-//         return res.status(401).json("Incorrect password")
-//       }
+      const checkQuery = "SELECT * FROM users WHERE username = $1";
+      const fullUser = await pool.query(checkQuery, [username]);
+      if (fullUser.rows.length == 0) {
+        return res.status(409).json({ error: "No user by that name exists" });
+      }
+      existingUser = fullUser.rows[0]
 
-//       const token = jwt.sign(
-//         { userId: existingUser.id, username: existingUser.username },
-//         process.env.JWT_SECRET, // a secret key stored in your env
-//         { expiresIn: '2h' }
-//       );
+      const passwordMatch = await bcrypt.compare(password, existingUser.password);
+      if (!passwordMatch) {
+        return res.status(401).json("Incorrect password")
+      }
+
+      const token = jwt.sign(
+        existingUser.id,
+        process.env.JWT_SECRET, // a secret key stored in your env
+      );
   
-//       return res.json({ token });
-//     }
-//     catch(err) {
-//       return res.status(err, "Internal Server Error");
-//     }
-//   }
-// );
+      return res.status(200).json({ token: token });
+    }
+    catch(err) {
+      return res.status(403).json({ error: 'Catch Error', details: err.message });
+    }
+  }
+);
 
 app.post(
   "/api/register",
   [
-    body("username").trim().isAlphanumeric().isLength({ min: 3, max: 20 }),
+    body("username").isAlphanumeric().isLength({ min: 3, max: 20 }),
     body("password").isLength({ min: 6, max: 100 }),
     body("email").contains("@"),
   ],
@@ -79,7 +103,7 @@ app.post(
     console.log("handling submit")
     const errors = validationResult(req);
     let { username, password, email } = req.body;
-    username = escape.literal(username);
+    // username = escape.literal(username);
 
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
@@ -186,6 +210,26 @@ app.get("/api/users", async (req, res) => {
 });
 
 
+// =============================================
+// ITEM LISTINGS
+
+
+// get all items
+app.get("/api/items", async (req, res) => {
+  try {
+    const { rows } = await pool.query(`
+      SELECT items.*, users.username as poster_name 
+      FROM items 
+      JOIN users ON items.poster_id = users.id
+      ORDER BY items.id DESC
+    `);
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Database error" });
+  }
+});
+
 // Serve React frontend in production
 app.use(express.static(path.join(__dirname, '../build')));
 
@@ -206,5 +250,3 @@ app.get('*', (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
-
-
