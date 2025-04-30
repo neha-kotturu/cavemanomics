@@ -130,6 +130,29 @@ app.post(
 )
 
 app.post(
+    "/api/getTexts",
+    async (req, res) => {
+        try {
+            const result = await pool.query("SELECT text FROM chatlogs WHERE matched_id = $1",
+                [req.body.matchedId]);
+            const result2 = await pool.query("SELECT index FROM chatlogs WHERE matched_id = $1",
+                [req.body.matchedId]);
+            const result3 = await pool.query("SELECT username FROM chatlogs WHERE matched_id = $1",
+                [req.body.matchedId]);
+
+            const objects = [];
+            for (let i = 0; i < result.rows.length; i++) {
+                objects.push({ "text": result.rows[i].text, "index": result2.rows[i].index, "username": result3.rows[i].username });
+            }
+            res.json(objects);
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: "Database error" });
+        }
+    }
+)
+
+app.post(
     "/api/getIndices",
     async (req, res) => {
         try {

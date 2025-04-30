@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import Login from './pages/login'
 import Register from './pages/register'
+import ChatSelection from './pages/chatSelection'
 import Chat from './pages/chat'
 import './App.css';
 import { useState } from 'react';
@@ -12,6 +13,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/chatSelection" element={<ChatSelection />} />
         <Route path="/chat" element={<Chat />} />
       </Routes>
     </Router>
@@ -34,7 +36,7 @@ function Home() {
           <Link to="/login">
             <button className="bttn">Login</button>
           </Link>
-          <Link to="/chat">
+          <Link to="/chatSelection">
              <button className="bttn">Test Chat</button>
           </Link>
         </div>
