@@ -6,22 +6,8 @@ const path = require("path");
 const cors = require("cors");
 const jwt = require('jsonwebtoken');
 const dotenvResult = require('dotenv').config({ path: path.join(__dirname, '.env') });
-
 const multer = require("multer");
-
-// Set up Multer to store files in /uploads directory
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/");
-  },
-  filename: (req, file, cb) => {
-    const uniqueName = Date.now() + "-" + file.originalname;
-    cb(null, uniqueName);
-  },
-});
-
-const upload = multer({ storage });
-
+const fs = require("fs");
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -47,11 +33,36 @@ const pool = new Pool({
   ssl: false // Add this for Supabase SSL support
 });
 
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, "uploads/"),
+  filename: (req, file, cb) => cb(null, Date.now() + "-" + file.originalname),
+});
+const upload = multer({ storage });
+
+app.post(
+  "/api/validate",
+  [
+    body("token"),
+  ],
+  async (req, res) => {
+    const { token } = req.body;
+    try {
+      console.log("Token:", token)
+      // throws if invalid or expired
+      const payload = jwt.verify(token, process.env.JWT_SECRET);
+      if (!payload) throw new Error("Invalid token")
+      // now payload.username & payload.userId are guaranteed
+      res.status(200).json({ ok: true, username: payload.username, userid: payload.userId });
+    } catch (err) {
+      res.status(401).json({ error: 'Invalid token' });
+    }
+});
+
 
 app.post(
   "/api/login",
   [
-    body("username").trim().isAlphanumeric().isLength({ min: 3, max: 20 }),
+    body("username").isAlphanumeric().isLength({ min: 3, max: 20 }),
     body("password").isLength({ min: 6, max: 100 }),
   ],
   async (req, res) => {
@@ -127,6 +138,27 @@ app.post(
   }
 );
 
+app.post("/api/upload", upload.single("image"), async (req, res) => {
+  const { item_name, description, poster_id } = req.body;
+  const imagePath = req.file ? req.file.filename : null;
+
+  if (!item_name || !description || !poster_id || !imagePath) {
+    return res.status(400).json({ message: "Missing required fields" });
+  }
+
+  try {
+    const result = await pool.query(
+      `INSERT INTO items (item_name, description, image_path, poster_id)
+       VALUES ($1, $2, $3, $4) RETURNING *`,
+      [item_name, description, imagePath, poster_id]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error("Upload error:", err);
+    res.status(500).json({ message: "Database error" });
+  }
+});
+
 // Test database connection
 pool.query("SELECT NOW()", (err, res) => {
   if (err) {
@@ -146,27 +178,26 @@ app.get("/api/users", async (req, res) => {
   }
 });
 
-app.post("/api/upload", upload.single("image"), async (req, res) => {
-  const { item_name, description, poster_id } = req.body;
-  const imagePath = req.file ? req.file.filename : null;
 
-  if (!item_name || !description || !poster_id || !imagePath) {
-    return res.status(400).json({ message: "Missing required fields" });
-  }
+// =============================================
+// ITEM LISTINGS
 
+
+// get all items
+app.get("/api/items", async (req, res) => {
   try {
-    const result = await pool.query(
-      `INSERT INTO trade_items (item_name, description, image_path, poster_id)
-       VALUES ($1, $2, $3, $4) RETURNING *`,
-      [item_name, description, imagePath, poster_id]
-    );
-    res.status(201).json(result.rows[0]);
+    const { rows } = await pool.query(`
+      SELECT items.*, users.username as poster_name 
+      FROM items 
+      JOIN users ON items.poster_id = users.id
+      ORDER BY items.id DESC
+    `);
+    res.json(rows);
   } catch (err) {
-    console.error("Upload error:", err);
-    res.status(500).json({ message: "Database error" });
+    console.error(err);
+    res.status(500).json({ error: "Database error" });
   }
 });
-
 
 // Serve React frontend in production
 app.use(express.static(path.join(__dirname, '../build')));
@@ -188,5 +219,3 @@ app.get('*', (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
-
-
