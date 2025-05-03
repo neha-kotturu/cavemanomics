@@ -1,8 +1,12 @@
 import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
 import Login from './pages/login'
 import Register from './pages/register'
 import Test from './pages/test'
+import Main from './pages/main'
 import './App.css';
+import auth, { pullData } from './pages/auth'
+import Upload from './pages/upload';
 
 function App() {
   return (
@@ -12,12 +16,22 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/test" element={<Test />} />
+        <Route path="/main" element={<Main />} />
+        <Route path="/upload" element={<Upload />} />
       </Routes>
     </Router>
   );
 }
 
 function Home() {
+  const [userID, setUserID] = useState(null);
+
+  useEffect(() => {
+    const ID = pullData(localStorage.getItem('token'));
+    setUserID(ID);
+  }, []);
+
+
   return (
     <div className="App">
       <header className="header">
@@ -25,6 +39,13 @@ function Home() {
         <p className="description">
         Trade Smarter, Not Harder
         </p>
+        <div className="userId">
+        {userID ? (
+        <p>Welcome! Your token is: {userID}</p>
+      ) : (
+        <p>No token found. Please log in.</p>
+      )}
+        </div>
        
         <div className="bttn-container">
           <Link to="/register">
