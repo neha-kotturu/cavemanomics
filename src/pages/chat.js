@@ -5,12 +5,13 @@ import { useNavigate } from "react-router-dom";
 function Chat() {
     const [texts, setTexts] = useState([]);
     var i = 0;
+    var roomId = localStorage.getItem("chatroom");
     var textObjects = texts.map(s => { i++; return <p key={i}>{s}</p>; });
 
     useEffect(() => { loadTexts() }, []);
 
     async function loadTexts() {
-        const jsonTexts = await getTexts(1);
+        const jsonTexts = await getTexts(roomId);
         const newTexts = [];
         if (jsonTexts != null) {
             jsonTexts.forEach((text) => {
@@ -23,8 +24,8 @@ function Chat() {
     async function submitText() {
         const newTexts = texts.slice();
         const text = document.getElementById("textInput");
-        const index = await getIndex(1);
-        if (index != null && await uploadText(1, text.value, index)) {
+        const index = await getIndex(roomId);
+        if (index != null && await uploadText(roomId, text.value, index)) {
             newTexts.push(text.value);
             setTexts(newTexts);
         }
