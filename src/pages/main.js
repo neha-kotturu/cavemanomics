@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { BrowserRouter as Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import Auth from './auth';
 import '../css/main.css';

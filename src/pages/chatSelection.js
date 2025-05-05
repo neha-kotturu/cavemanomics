@@ -59,7 +59,7 @@ function ChatSelection() {
             <a href='/' className="app-title">Cavemanomics</a>
             <header className="header">
                 <h1>Chats</h1>
-                {chatroomObjects}
+                {chatroomObjects.length == 0 ? <p>You are not in any chats</p> : chatroomObjects}
             </header>
         </div>
     );
