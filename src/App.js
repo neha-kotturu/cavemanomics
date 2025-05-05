@@ -41,13 +41,13 @@ function Home() {
         <p className="description">
         Trade Smarter, Not Harder
         </p>
-        <div className="userId">
+        {/* <div className="userId">
         {userID ? (
         <p>Welcome! Your token is: {userID}</p>
       ) : (
         <p>No token found. Please log in.</p>
       )}
-        </div>
+        </div> */}
        
         <div className="bttn-container">
           <Link to="/register">
@@ -55,9 +55,6 @@ function Home() {
           </Link>
           <Link to="/login">
             <button className="bttn">Login</button>
-          </Link>
-          <Link to="/chatSelection">
-             <button className="bttn">Test Chat</button>
           </Link>
         </div>
       </header>

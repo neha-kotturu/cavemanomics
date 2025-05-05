@@ -51,7 +51,7 @@
     cursor: pointer;
   }
   
-  .notification-icon, .profile-icon {
+  .nav-icon {
     font-size: 24px;
     padding: 8px;
     border-radius: 50%;
