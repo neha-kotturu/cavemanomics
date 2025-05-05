@@ -5,6 +5,7 @@
 /.pnp
 .pnp.js
 /express/node_modules/
+/express/node_modules
 
 # testing
 /coverage
