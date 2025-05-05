@@ -18,6 +18,7 @@ function App() {
         <Route path="/main" element={<Main />} />
         <Route path="/upload" element={<Upload />} />
         <Route path="/test" element={<Test />} />
+        <Route path="/main" element={<Main />} />
       </Routes>
     </Router>
   );

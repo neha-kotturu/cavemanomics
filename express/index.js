@@ -39,6 +39,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
+
 app.post(
   "/api/validate",
   [
@@ -139,7 +140,7 @@ app.post(
 );
 
 app.post("/api/upload", upload.single("image"), async (req, res) => {
-  const { item_name, description, poster_id } = req.body;
+  let { item_name, description, poster_id } = req.body;
   const imagePath = req.file ? req.file.filename : null;
 
   if (!item_name || !description || !poster_id || !imagePath) {
@@ -148,8 +149,8 @@ app.post("/api/upload", upload.single("image"), async (req, res) => {
 
   try {
     const result = await pool.query(
-      `INSERT INTO items (item_name, description, image_path, poster_id)
-       VALUES ($1, $2, $3, $4) RETURNING *`,
+      "INSERT INTO items (item_name, description, image_path, poster_id)
+       VALUES ($1, $2, $3, $4) RETURNING *",
       [item_name, description, imagePath, poster_id]
     );
     res.status(201).json(result.rows[0]);
@@ -218,4 +219,7 @@ app.get('*', (req, res) => {
 // Start server
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
+
+
 });
+
