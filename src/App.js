@@ -6,6 +6,7 @@ import Test from './pages/test'
 import Main from './pages/main'
 import './App.css';
 import auth, { pullData } from './pages/auth'
+import Upload from './pages/upload';
 
 function App() {
   return (
@@ -14,6 +15,8 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/main" element={<Main />} />
+        <Route path="/upload" element={<Upload />} />
         <Route path="/test" element={<Test />} />
         <Route path="/main" element={<Main />} />
       </Routes>

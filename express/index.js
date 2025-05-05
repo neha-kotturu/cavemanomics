@@ -6,6 +6,8 @@ const path = require("path");
 const cors = require("cors");
 const jwt = require('jsonwebtoken');
 const dotenvResult = require('dotenv').config({ path: path.join(__dirname, '.env') });
+const multer = require("multer");
+const fs = require("fs");
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -30,6 +32,13 @@ const pool = new Pool({
   pool_mode: process.env.DB_POOLMODE,
   ssl: false // Add this for Supabase SSL support
 });
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, "uploads/"),
+  filename: (req, file, cb) => cb(null, Date.now() + "-" + file.originalname),
+});
+const upload = multer({ storage });
+
 
 app.post(
   "/api/validate",
@@ -130,6 +139,27 @@ app.post(
   }
 );
 
+app.post("/api/upload", upload.single("image"), async (req, res) => {
+  let { item_name, description, poster_id } = req.body;
+  const imagePath = req.file ? req.file.filename : null;
+
+  if (!item_name || !description || !poster_id || !imagePath) {
+    return res.status(400).json({ message: "Missing required fields" });
+  }
+
+  try {
+    const result = await pool.query(
+      "INSERT INTO items (item_name, description, image_path, poster_id)
+       VALUES ($1, $2, $3, $4) RETURNING *",
+      [item_name, description, imagePath, poster_id]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error("Upload error:", err);
+    res.status(500).json({ message: "Database error" });
+  }
+});
+
 // Test database connection
 pool.query("SELECT NOW()", (err, res) => {
   if (err) {
@@ -189,4 +219,7 @@ app.get('*', (req, res) => {
 // Start server
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
+
+
 });
+
