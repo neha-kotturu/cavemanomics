@@ -20,8 +20,6 @@ app.use((req, res, next) => {
   next();
 });
 
-
-
 const { Pool } = require("pg");
 const pool = new Pool({
   user: process.env.DB_USER,
@@ -30,7 +28,7 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
   pool_mode: process.env.DB_POOLMODE,
-  ssl: false // Add this for Supabase SSL support
+  ssl: false
 });
 
 const storage = multer.diskStorage({
@@ -49,16 +47,13 @@ app.post(
     const { token } = req.body;
     try {
       console.log("Token:", token)
-      // throws if invalid or expired
       const payload = jwt.verify(token, process.env.JWT_SECRET);
       if (!payload) throw new Error("Invalid token")
-      // now payload.username & payload.userId are guaranteed
       res.status(200).json({ ok: true, username: payload.username, userid: payload.userId });
     } catch (err) {
       res.status(401).json({ error: 'Invalid token' });
     }
 });
-
 
 app.post(
   "/api/login",
@@ -90,9 +85,9 @@ app.post(
 
       const token = jwt.sign(
         existingUser.id,
-        process.env.JWT_SECRET, // a secret key stored in your env
+        process.env.JWT_SECRET,
       );
-  
+
       return res.status(200).json({ token: token });
     }
     catch(err) {
@@ -112,7 +107,6 @@ app.post(
     console.log("handling submit")
     const errors = validationResult(req);
     let { username, password, email } = req.body;
-    // username = escape.literal(username);
 
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
@@ -137,6 +131,82 @@ app.post(
       res.status(500).json({ error: "Database error" });
     }
   }
+);
+
+app.post(
+    "/api/postText",
+    async (req, res) => {
+        const errors = validationResult(req);
+        let {matchedId, text, index, username} = req.body;
+
+        if (!errors.isEmpty()) {
+          return res.status(400).json({ errors: errors.array() });
+        }
+
+        try {
+          const result = await pool.query(
+            "INSERT INTO chatlogs (matched_id, text, index, username) VALUES ($1, $2, $3, $4) RETURNING *",
+            [matchedId, text, index, username]
+          );
+          res.json({ message: "Text posted successfully." });
+        } catch (err) {
+          console.error("Database error:", err);
+          res.status(500).json({ error: "Database error" });
+        }
+    }
+);
+
+app.post(
+    "/api/getTexts",
+    async (req, res) => {
+        try {
+            const result = await pool.query("SELECT text FROM chatlogs WHERE matched_id = $1",
+                [req.body.matchedId]);
+            const result2 = await pool.query("SELECT index FROM chatlogs WHERE matched_id = $1",
+                [req.body.matchedId]);
+            const result3 = await pool.query("SELECT username FROM chatlogs WHERE matched_id = $1",
+                [req.body.matchedId]);
+
+            const objects = [];
+            for (let i = 0; i < result.rows.length; i++) {
+                objects.push({ "text": result.rows[i].text, "index": result2.rows[i].index, "username": result3.rows[i].username });
+            }
+            res.json(objects);
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: "Database error" });
+        }
+    }
+);
+
+app.post(
+    "/api/getIndices",
+    async (req, res) => {
+        try {
+            const result = await pool.query("SELECT index FROM chatlogs WHERE matched_id = $1",
+                [req.body.matchedId]);
+            res.json(result.rows);
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: "Database error" });
+        }
+    }
+);
+
+// Get matches for user
+app.post(
+    "/api/getMatches",
+    async (req, res) => {
+        try {
+            const result = await pool.query("SELECT id FROM matches WHERE user_1 = $1 OR user_2 = $1",
+                [req.body.userId]);
+
+            res.json(result);
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: "Database error" });
+        }
+    }
 );
 
 app.post("/api/upload", upload.single("image"), async (req, res) => {
@@ -179,17 +249,15 @@ app.get("/api/users", async (req, res) => {
   }
 });
 
-
 // =============================================
 // ITEM LISTINGS
-
 
 // get all items
 app.get("/api/items", async (req, res) => {
   try {
     const { rows } = await pool.query(`
-      SELECT items.*, users.username as poster_name 
-      FROM items 
+      SELECT items.*, users.username as poster_name
+      FROM items
       JOIN users ON items.poster_id = users.id
       ORDER BY items.id DESC
     `);
@@ -199,27 +267,82 @@ app.get("/api/items", async (req, res) => {
     res.status(500).json({ error: "Database error" });
   }
 });
-
-// Serve React frontend in production
-app.use(express.static(path.join(__dirname, '../build')));
-
-// Uncomment if you want to only see raw express backend in dev
-// if (process.env.NODE_ENV === "production") {
-//     app.use(express.static("client/build"));
   
-//     app.get("*", (req, res) => {
-//       res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
-//     });
-//   }
+// =============================================
+// SWIPES
 
+app.post("/api/swipes", async (req, res) => {
+  try {
+    const { item_id, poster_id, liker_id } = req.body;
+    
+    const checkSwipeQuery = `
+      SELECT * FROM swipes
+      WHERE liker_id = $1 AND item_id = $2
+    `;
+    const existingSwipe = await pool.query(checkSwipeQuery, [liker_id, item_id]);
+    if (existingSwipe.rows.length > 0) {
+      return res.status(200).json({ message: "Swipe already recorded." });
+    }
+
+    const result = await pool.query(
+      "INSERT INTO swipes (poster_id, liker_id, item_id) VALUES ($1, $2, $3) RETURNING *",
+      [poster_id, liker_id, item_id]
+    );
+
+    // check for match
+    const checkMatchQuery = `
+      SELECT s1.item_id as item1, s2.item_id as item2
+      FROM swipes s1
+      JOIN swipes s2 ON s1.poster_id = s2.liker_id AND s1.liker_id = s2.poster_id
+      WHERE s1.liker_id = $1 AND s2.liker_id = $2
+    `;
+    const matchResult = await pool.query(checkMatchQuery, [liker_id, poster_id]);
+
+    if (matchResult.rows.length > 0) {
+      // create match record
+      const match = matchResult.rows[0];
+      
+      const [user1, user2] = [poster_id, liker_id];
+      const [item1, item2] = [match.item1, match.item2] 
+
+      const existingMatch = await pool.query(
+        "SELECT * FROM matches WHERE (user_1 = $1 AND user_2 = $2) OR (user_1 = $2 AND user_2 = $1)",
+        [user1, user2]
+      );
+
+      if (existingMatch.rows.length === 0) {
+        await pool.query(
+          "INSERT INTO matches (user_1, user_2, item_id_1, item_id_2) VALUES ($1, $2, $3, $4)",
+          [user1, user2, item1, item2]
+        );
+      }
+
+      return res.status(201).json({
+        swipe: result.rows[0],
+        match: true,
+        matchedUser: poster_id,
+        matchedItems: { item1, item2 }
+      });
+    }
+
+    res.status(201).json({
+      swipe: result.rows[0],
+      match: false
+    });
+
+  } catch (err) {
+    console.error("Error processing swipe:", err);
+    res.status(500).json({ error: "Database error" });
+  }
+});
+
+app.use(express.static(path.join(__dirname, '../build')));
+  
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../build', 'index.html'));
 });
 
-// Start server
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
-
-
 });
 
