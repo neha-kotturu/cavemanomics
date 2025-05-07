@@ -1,40 +1,50 @@
 {
-  "name": "express",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "start": "concurrently \"react-scripts start\" \"cd express && node index.js\""
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
-  "dependencies": {
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.7",
-    "express": "^4.21.2",
-    "jsonwebtoken": "^9.0.2",
-    "pg": "^8.14.1",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "react-router-dom": "^7.5.3",
-    "react-scripts": "^5.0.1",
-    "run": "^1.5.0",
-    "start": "^5.1.0"
-  },
-  "devDependencies": {
-    "concurrently": "^9.1.2"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  }
+    "name": "express",
+    "version": "1.0.0",
+    "main": "index.js",
+    "scripts": {
+        "start": "concurrently \"react-scripts start\" \"cd express && node index.js\"",
+        "client": "react-scripts start",
+        "server": "cd express && node index.js",
+        "server-dev": "cd express && npx nodemon index.js",
+        "build": "react-scripts build",
+        "install-server": "cd express && npm install",
+        "install-client": "npm install",
+        "install-all": "npm install && npm run install-server"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "description": "",
+    "dependencies": {
+        "cors": "^2.8.5",
+        "dotenv": "^16.4.7",
+        "express": "^4.21.2",
+        "jsonwebtoken": "^9.0.2",
+        "pg": "^8.14.1",
+        "react": "^19.1.0",
+        "react-dom": "^19.1.0",
+        "react-router-dom": "^7.5.3",
+        "react-scripts": "^5.0.1",
+        "run": "^1.5.0",
+        "start": "^5.1.0"
+    },
+    "eslintConfig": {
+        "extends": []
+    },
+    "devDependencies": {
+        "concurrently": "^9.1.2"
+    },
+    "browserslist": {
+        "production": [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+        ],
+        "development": [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+        ]
+    }
 }
