@@ -88,7 +88,7 @@ app.post(
         process.env.JWT_SECRET,
       );
 
-      return res.status(200).json({ token: token });
+      return res.status(200).json({ token: token, username: username });
     }
     catch(err) {
       return res.status(403).json({ error: 'Catch Error', details: err.message });
@@ -198,10 +198,20 @@ app.post(
     "/api/getMatches",
     async (req, res) => {
         try {
-            const result = await pool.query("SELECT id FROM matches WHERE user_1 = $1 OR user_2 = $1",
+            const result = await pool.query("SELECT id, user_1, user_2, item_id_1, item_id_2 FROM matches WHERE user_1 = $1 OR user_2 = $1",
                 [req.body.userId]);
-
-            res.json(result);
+            var rooms = [];
+            for (let i = 0; i < result.rows.length; i++) {
+                let item;
+                if (req.body.userId == result.rows[i].user_1) {
+                    item = result.rows[i].item_id_2;
+                } else {
+                    item = result.rows[i].item_id_1;
+                }
+                const result2 = await pool.query("SELECT item_name FROM items WHERE id = $1", [item]);
+                if (result2.rows.length > 0) rooms.push({ id: result.rows[i].id, item: result2.rows[0].item_name });
+            }
+            res.json(rooms);
         } catch (err) {
             console.error(err);
             res.status(500).json({ error: "Database error" });

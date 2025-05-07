@@ -30,7 +30,6 @@ function Login() {
       }
 
       const data = await response.json();
-
       localStorage.setItem('token', JSON.stringify(data));
       console.log("User successfully logged in");
       setTimeout(() => {

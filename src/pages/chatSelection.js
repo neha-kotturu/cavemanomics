@@ -21,7 +21,7 @@ function ChatSelection() {
     var chatroomObjects = chatrooms.map(room => {
         i++;
         return <Link to="/chat" key={i}>
-            <button onClick={localStorage.setItem("chatroom", room)} className="bttn">Room: {room}</button>
+            <button onClick={localStorage.setItem("chatroom", room.id)} className="bttn">{room.item}</button>
         </Link>;
     }
     );
@@ -29,7 +29,7 @@ function ChatSelection() {
     useEffect(() => {
         const ID = pullData(localStorage.getItem('token'));
         var rooms = loadChatrooms(ID);
-        rooms.then(rooms => { if (rooms != null) { setChatrooms(rooms.map(room => room.id)); } });
+        rooms.then(rooms => { if (rooms != null) { setChatrooms(rooms); } });
     }, []);
 
     async function loadChatrooms(userId) {
@@ -44,8 +44,7 @@ function ChatSelection() {
                 throw new Error("Error getting matches");
             }
 
-            const data = (await response.json()).rows;
-            data.sort((a, b) => a.id - b.id);
+            const data = await response.json();
             console.log("Matches obtained: ", data);
             return data;
         } catch (error) {

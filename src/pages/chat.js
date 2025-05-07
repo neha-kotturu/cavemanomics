@@ -15,7 +15,11 @@ function Chat() {
         const newTexts = [];
         if (jsonTexts != null) {
             jsonTexts.forEach((text) => {
-                newTexts.push(text.text);
+                if (JSON.parse(localStorage.getItem("token")).username == text.username) {
+                    newTexts.push(text.text);
+                } else {
+                    newTexts.push(text.username + ": " + text.text);
+                }
             });
             setTexts(newTexts);
         }
@@ -80,10 +84,11 @@ function Chat() {
 
     async function uploadText(matchedId, text, index) {
         try {
+            console.log(JSON.parse(localStorage.getItem("token")).username);
             const response = await fetch("http://localhost:5001/api/postText", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify( {matchedId, text, index, "username":""} )
+                body: JSON.stringify({ matchedId, text, index, "username": JSON.parse(localStorage.getItem("token")).username })
             });
             if (!response.ok) {
                 throw new Error("Error submitting text");
