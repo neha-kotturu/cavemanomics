@@ -23,8 +23,8 @@
     "start": "^5.1.0"
   },
   "eslintConfig": {
-    "extends": [
-    ]
+      "extends": []
+  },
   "devDependencies": {
     "concurrently": "^9.1.2"
   },

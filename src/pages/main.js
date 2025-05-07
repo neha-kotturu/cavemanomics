@@ -253,7 +253,8 @@ function Home() {
                   <div className="menu-item" onClick={() => navigate('/upload')}>Upload Item</div>
                   <div className="menu-item" onClick={handleLogout}>Logout</div>
                 </div>
-              )}
+                          )}
+           </div>
           </div>
         </div>
       </nav>

@@ -219,8 +219,7 @@ app.post("/api/upload", upload.single("image"), async (req, res) => {
 
   try {
     const result = await pool.query(
-      "INSERT INTO items (item_name, description, image_path, poster_id)
-       VALUES ($1, $2, $3, $4) RETURNING *",
+      "INSERT INTO items (item_name, description, image_path, poster_id) VALUES ($1, $2, $3, $4) RETURNING *",
       [item_name, description, imagePath, poster_id]
     );
     res.status(201).json(result.rows[0]);
