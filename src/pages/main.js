@@ -240,6 +240,12 @@ function Home() {
           </div>
           <div className="nav-icon-container">
             <div className="nav-icon" onClick={toggleProfileMenu}>
+            <div className="upload-icon" onClick={() => navigate('/upload')}>
+               <i className="upload-icon-symbol"> 📤 </i>
+            </div>
+          </div>
+          <div className="nav-icon-container">
+            <div className="profile-icon" onClick={toggleProfileMenu}>
               <i className="profile-avatar"> 👤 </i>
             </div>
               {showProfileMenu && (

@@ -8,6 +8,7 @@ import './App.css';
 import Test from './pages/test'
 import Main from './pages/main'
 import auth, { pullData } from './pages/auth'
+import Upload from './pages/upload';
 
 function App() {
   return (
@@ -18,6 +19,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/chatSelection" element={<ChatSelection />} />
         <Route path="/chat" element={<Chat />} />
+        <Route path="/main" element={<Main />} />
+        <Route path="/upload" element={<Upload />} />
         <Route path="/test" element={<Test />} />
         <Route path="/main" element={<Main />} />
       </Routes>
