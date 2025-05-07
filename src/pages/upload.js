@@ -44,7 +44,7 @@ function Upload() {
     const payload = new FormData();
     payload.append("item_name", itemName);
     payload.append("item_description", description);
-    payload.append("item_image", image);
+    payload.append("image", image);
     payload.append("poster_id", posterId);
 
     try {
