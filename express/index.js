@@ -88,6 +88,8 @@ app.post(
         process.env.JWT_SECRET,
       );
 
+  
+      return res.status(200).json({ token: token, user: { id: existingUser.id, username: existingUser.username } });
       return res.status(200).json({ token: token, username: username });
     }
     catch(err) {
@@ -220,17 +222,22 @@ app.post(
 );
 
 app.post("/api/upload", upload.single("image"), async (req, res) => {
-  let { item_name, description, poster_id } = req.body;
+  let { item_name, item_description, poster_id } = req.body;
   const imagePath = req.file ? req.file.filename : null;
 
-  if (!item_name || !description || !poster_id || !imagePath) {
+  if (!item_name || !item_description || !poster_id || !imagePath) {
     return res.status(400).json({ message: "Missing required fields" });
   }
 
   try {
     const result = await pool.query(
+
+      "INSERT INTO items (item_name, item_description, item_url, poster_id) VALUES ($1, $2, $3, $4) RETURNING *",
+      [item_name, item_description, imagePath, poster_id]
+
       "INSERT INTO items (item_name, description, image_path, poster_id) VALUES ($1, $2, $3, $4) RETURNING *",
       [item_name, description, imagePath, poster_id]
+
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {

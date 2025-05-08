@@ -26,7 +26,9 @@ function Upload() {
     setStatus({ type: "", message: "" });
 
     const { itemName, description, image } = formData;
-    const posterId = localStorage.getItem("userId");
+    const user = JSON.parse(localStorage.getItem("user"));
+    const posterId = user?.id || user?._id;
+
 
     if (!itemName || !description || !image || !posterId) {
       setStatus({ type: "error", message: "All fields are required." });
@@ -42,7 +44,7 @@ function Upload() {
     const payload = new FormData();
     payload.append("item_name", itemName);
     payload.append("item_description", description);
-    payload.append("item_image", image);
+    payload.append("image", image);
     payload.append("poster_id", posterId);
 
     try {
