@@ -105,7 +105,7 @@ function Chat() {
 
     return (
         <div className="App">
-            <a href='/' className="app-title">Cavemanomics</a>
+            <a href='/main' className="app-title">Cavemanomics</a>
             <header className="header">
                 <h1>Chat</h1>
                 <div className="chatbox">
