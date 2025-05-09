@@ -39,19 +39,30 @@ function Home() {
 
   return (
     <div className="App">
+      <div className="decor-circle circle-1"></div>
+      <div className="decor-circle circle-2"></div>
+      
       <header className="header">
         <h1 className="title">Cavemanomics</h1>
         <p className="description">
-        Trade Smarter, Not Harder
+          Trade Smarter, Not Harder
         </p>
-        {/* <div className="userId">
-        {userID ? (
-        <p>Welcome! Your userID is: {userID}</p>
-      ) : (
-        <p>No token found. Please log in.</p>
-      )}
-        </div> */}
        
+        <div className="features-section">
+          <div className="feature">
+            <span className="feature-icon">💼</span>
+            <span className="feature-text">Barter Items</span>
+          </div>
+          <div className="feature">
+            <span className="feature-icon">🔄</span>
+            <span className="feature-text">Instant Swaps</span>
+          </div>
+          <div className="feature">
+            <span className="feature-icon">💬</span>
+            <span className="feature-text">Chat Support</span>
+          </div>
+        </div>
+        
         <div className="bttn-container">
           <Link to="/register">
             <button className="bttn">Register</button>

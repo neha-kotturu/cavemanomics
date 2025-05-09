@@ -44,9 +44,14 @@ function Login() {
 
   return (
     <div className="App">
+      <div className="decor-circle circle-1"></div>
+      <div className="decor-circle circle-2"></div>
+      
       <a href='/' className="app-title">Cavemanomics</a>
       <header className="header">
-        <h1>Login</h1>
+        <h1 className="title">Welcome Back</h1>
+        <p className="description">Login to your account</p>
+        
         <form className="input-container" onSubmit={handleSubmit}>
           <input 
             type="text" 
@@ -54,6 +59,7 @@ function Login() {
             className="input-field" 
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            required
           />
           <input 
             type="password" 
@@ -61,8 +67,13 @@ function Login() {
             className="input-field" 
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            required
           />
-          <button className="bttn" type="submit">Login</button>
+          <button className="bttn" type="submit">Sign In</button>
+          
+          <div className="alt-action">
+            Don't have an account? <a href="/register">Register</a>
+          </div>
         </form>
       </header>
     </div>

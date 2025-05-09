@@ -41,9 +41,14 @@ function Register() {
 
   return (
     <div className="App">
+      <div className="decor-circle circle-1"></div>
+      <div className="decor-circle circle-2"></div>
+      
       <a href='/' className="app-title">Cavemanomics</a>
       <header className="header">
-        <h1>Register</h1>
+        <h1 className="title">Join Cavemanomics</h1>
+        <p className="description">Create your account</p>
+        
         <form className="input-container" onSubmit={handleSubmit}>
           <input 
             type="text" 
@@ -51,6 +56,7 @@ function Register() {
             className="input-field" 
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            required
           />
           <input 
             type="email" 
@@ -58,6 +64,7 @@ function Register() {
             className="input-field" 
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required
           />
           <input 
             type="password" 
@@ -65,8 +72,13 @@ function Register() {
             className="input-field" 
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            required
           />
-          <button className="bttn" type="submit">Register</button>
+          <button className="bttn" type="submit">Create Account</button>
+          
+          <div className="alt-action">
+            Already have an account? <a href="/login">Sign In</a>
+          </div>
         </form>
       </header>
     </div>
