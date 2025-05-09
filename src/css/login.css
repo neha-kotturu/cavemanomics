@@ -88,17 +88,3 @@
     outline: none;
     border-color: #4d658d;
 }
-  
-@media (max-width: 768px) {
-    .title {
-      font-size: 3em;
-    }
-  
-    .description {
-      font-size: 1.2em;
-    }
-  
-    .bttn-container {
-      flex-direction: column;
-    }
-}

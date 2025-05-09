@@ -2,10 +2,13 @@ import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import React, { useState, useEffect } from "react";
 import Login from './pages/login'
 import Register from './pages/register'
+import ChatSelection from './pages/chatSelection'
+import Chat from './pages/chat'
+import './App.css';
 import Test from './pages/test'
 import Main from './pages/main'
-import './App.css';
 import auth, { pullData } from './pages/auth'
+import Upload from './pages/upload';
 
 function App() {
   return (
@@ -14,6 +17,10 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/chatSelection" element={<ChatSelection />} />
+        <Route path="/chat" element={<Chat />} />
+        <Route path="/main" element={<Main />} />
+        <Route path="/upload" element={<Upload />} />
         <Route path="/test" element={<Test />} />
         <Route path="/main" element={<Main />} />
       </Routes>

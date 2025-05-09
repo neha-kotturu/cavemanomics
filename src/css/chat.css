@@ -1,0 +1,104 @@
+.App {
+    text-align: center;
+    background: linear-gradient(to right, #4f668c, #65a392);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: "Montserrat", sans-serif;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* title */
+.app-title {
+    position: absolute;
+    top: 0;
+    padding-top: 30px;
+    color: #141d2a;
+    font-size: 2.5em;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+h1 {
+    padding-bottom: 30px;
+}
+
+/* chat container */
+.chat-container {
+    width: 100%;
+    max-width: 600px;
+    margin-top: 80px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+
+.chat-header {
+    color: #fff;
+    margin-bottom: 20px;
+    font-size: 2em;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.chat-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.chatroom-block {
+    margin-bottom: 16px;
+}
+
+.chatroom-flex {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+}
+
+/* chatroom box */
+.chat-id-box {
+    background-color: #1d314f;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.chat-id-box:hover {
+    background-color: #223c64;
+}
+
+/* confirm trade box */
+.confirm-div {
+    background-color: #2d5148;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    display: inline-block;
+    transition: all 0.3s ease;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.confirm-div:hover {
+    background-color: #376d60;
+    transform: scale(1.03);
+}
+
+.no-chats {
+    color: rgba(255, 255, 255, 0.8);
+    font-style: italic;
+}
