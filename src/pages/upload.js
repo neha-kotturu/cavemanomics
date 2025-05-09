@@ -66,6 +66,7 @@ function Upload() {
   return (
     <Auth>
       <div className="upload-container">
+        <a href='/main' className="app-title">Cavemanomics</a>
         <div className="upload-box">
           <h2 className="upload-heading">Upload an Item</h2>
           <p className="upload-description">Add a name, description, and image to post your item.</p>

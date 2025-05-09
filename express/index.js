@@ -9,12 +9,14 @@ const dotenvResult = require('dotenv').config({ path: path.join(__dirname, '.env
 const multer = require("multer");
 const fs = require("fs");
 
+
 const app = express();
 const PORT = process.env.PORT || 5001;
 
 app.use(express.json());
 app.use(cors());
-
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use(express.static(path.join(__dirname, '../build')));
 app.use((req, res, next) => {
   console.log("Incoming:", req.method, req.url, req.headers['content-type'], req.body);
   next();
@@ -30,6 +32,7 @@ const pool = new Pool({
   pool_mode: process.env.DB_POOLMODE,
   ssl: false
 });
+
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, "uploads/"),
@@ -88,9 +91,7 @@ app.post(
         process.env.JWT_SECRET,
       );
 
-  
       return res.status(200).json({ token: token, user: { id: existingUser.id, username: existingUser.username } });
-      return res.status(200).json({ token: token, username: username });
     }
     catch(err) {
       return res.status(403).json({ error: 'Catch Error', details: err.message });
@@ -195,7 +196,6 @@ app.post(
     }
 );
 
-// Get matches for user
 app.post(
     "/api/getMatches",
     async (req, res) => {
@@ -231,27 +231,14 @@ app.post("/api/upload", upload.single("image"), async (req, res) => {
 
   try {
     const result = await pool.query(
-
       "INSERT INTO items (item_name, item_description, item_url, poster_id) VALUES ($1, $2, $3, $4) RETURNING *",
       [item_name, item_description, imagePath, poster_id]
-
-      "INSERT INTO items (item_name, description, image_path, poster_id) VALUES ($1, $2, $3, $4) RETURNING *",
-      [item_name, description, imagePath, poster_id]
-
     );
+
     res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error("Upload error:", err);
     res.status(500).json({ message: "Database error" });
-  }
-});
-
-// Test database connection
-pool.query("SELECT NOW()", (err, res) => {
-  if (err) {
-    console.error("Database connection error", err);
-  } else {
-    console.log("Database connected at", res.rows[0].now);
   }
 });
 
@@ -265,10 +252,6 @@ app.get("/api/users", async (req, res) => {
   }
 });
 
-// =============================================
-// ITEM LISTINGS
-
-// get all items
 app.get("/api/items", async (req, res) => {
   try {
     const { rows } = await pool.query(`
@@ -283,9 +266,6 @@ app.get("/api/items", async (req, res) => {
     res.status(500).json({ error: "Database error" });
   }
 });
-  
-// =============================================
-// SWIPES
 
 app.post("/api/swipes", async (req, res) => {
   try {
@@ -352,8 +332,50 @@ app.post("/api/swipes", async (req, res) => {
   }
 });
 
-app.use(express.static(path.join(__dirname, '../build')));
-  
+app.post("/api/confirmTrade", async (req, res) => {
+  const { matchId, userId } = req.body;
+
+  try {
+    const result = await pool.query("SELECT * FROM matches WHERE id = $1", [matchId]);
+    const match = result.rows[0];
+    if (!match) return res.status(404).json({ error: "Match not found" });
+
+    if (match.user_1 === userId) {
+      await pool.query("UPDATE matches SET user1_confirm = true WHERE id = $1", [matchId]);
+    } else if (match.user_2 === userId) {
+      await pool.query("UPDATE matches SET user2_confirm = true WHERE id = $1", [matchId]);
+    }
+
+    const updatedMatchRes = await pool.query("SELECT * FROM matches WHERE id = $1", [matchId]);
+    const updatedMatch = updatedMatchRes.rows[0];
+
+    if (updatedMatch.user1_confirm && updatedMatch.user2_confirm) {
+      await pool.query("DELETE FROM items WHERE id = $1 OR id = $2", [
+        updatedMatch.item_id_1,
+        updatedMatch.item_id_2,
+      ]);
+
+      await pool.query("DELETE FROM matches WHERE id = $1", [matchId]);
+
+      return res.status(200).json({ message: "Trade confirmed and match completed." });
+    }
+
+    res.status(200).json({ message: "Confirmation saved. Waiting for the other user." });
+
+  } catch (err) {
+    console.error("Error confirming trade:", err);
+    res.status(500).json({ error: "Database error" });
+  }
+});
+
+pool.query("SELECT NOW()", (err, res) => {
+  if (err) {
+    console.error("Database connection error", err);
+  } else {
+    console.log("Database connected at", res.rows[0].now);
+  }
+});
+
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../build', 'index.html'));
 });
@@ -361,4 +383,3 @@ app.get('*', (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
-
