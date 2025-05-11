@@ -14,10 +14,11 @@ To run the project:
 
 download the code onto your local machine
 run the following:
+```
 cd express
 npm i
 cd ..
 npm i
 npm start
-
+```
 the project will launch on http://localhost:3000/
