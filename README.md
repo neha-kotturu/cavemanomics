@@ -8,3 +8,16 @@ CS 320 Project
 [High-Level Implementation](https://docs.google.com/presentation/d/11lHT7Zt818sQJsgni0WVxg3jYzZvV2L3iRHlvKru7H0/edit?usp=sharing)
 
 [Frameworks/Work Distribution](https://docs.google.com/presentation/d/1qLFESUohEFlxht7WYnIqEQcUsPYd8uHeqM6oUmAVBLs/edit?usp=sharing)
+
+
+To run the project:
+
+download the code onto your local machine
+run the following:
+cd express
+npm i
+cd ..
+npm i
+npm start
+
+the project will launch on http://localhost:3000/
