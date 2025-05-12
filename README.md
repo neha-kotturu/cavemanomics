@@ -22,3 +22,5 @@ npm i
 npm start
 ```
 the project will launch on http://localhost:3000/
+
+you will need access to the .env file in order to access our database, one of us will email professor the file and then you must put it into the express folder. Then all should be working
